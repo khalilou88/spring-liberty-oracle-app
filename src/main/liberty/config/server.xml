@@ -1,0 +1,29 @@
+<server description="Spring Application Server">
+    <featureManager>
+        <feature>servlet-4.0</feature>
+        <feature>jdbc-4.2</feature>
+        <feature>jndi-1.0</feature>
+        <feature>localConnector-1.0</feature>
+        <feature>jpa-2.2</feature>
+    </featureManager>
+
+    <httpEndpoint id="defaultHttpEndpoint" host="*" httpPort="${default.http.port}" httpsPort="${default.https.port}" />
+
+    <library id="OracleLib">
+        <fileset dir="${server.config.dir}/lib" includes="ojdbc8.jar" />
+    </library>
+
+    <dataSource id="OracleDataSource" jndiName="jdbc/myOracleDS">
+        <jdbcDriver libraryRef="OracleLib" />
+        <properties.oracle URL="jdbc:oracle:thin:@//localhost:1521/ORCLPDB1"
+                           user="scott"
+                           password="tiger" />
+        <connectionManager maxPoolSize="50" minPoolSize="10" />
+    </dataSource>
+
+    <applicationManager autoExpand="true" />
+
+    <application id="spring-liberty-app" location="spring-liberty-app.war" name="spring-liberty-app" type="war" context-root="${app.context.root}">
+        <classloader commonLibraryRef="OracleLib" />
+    </application>
+</server>
