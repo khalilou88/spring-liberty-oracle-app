@@ -1,6 +1,6 @@
 # Spring Application Deployment on WebSphere Liberty with Oracle Database
 
-This guide provides a complete setup for deploying a traditional Spring application on WebSphere Liberty using ojdbc7 driver and Java 8, focusing on the backend components without JSP views.
+This guide provides a complete setup for deploying a traditional Spring application on WebSphere Liberty using ojdbc8 driver and Java 8, focusing on the backend components without JSP views.
 
 ## Project Structure
 
@@ -182,7 +182,7 @@ Create a file at `src/main/liberty/config/server.xml`:
     <httpEndpoint id="defaultHttpEndpoint" host="*" httpPort="${default.http.port}" httpsPort="${default.https.port}" />
 
     <library id="OracleLib">
-        <fileset dir="${server.config.dir}/lib" includes="ojdbc7.jar" />
+        <fileset dir="${server.config.dir}/lib" includes="ojdbc8.jar" />
     </library>
 
     <dataSource id="OracleDataSource" jndiName="jdbc/myOracleDS">
@@ -634,10 +634,10 @@ log4j.logger.org.springframework=INFO
 
 ## Building and Deployment Steps
 
-1. Copy the ojdbc7 driver to Liberty's lib directory:
+1. Copy the ojdbc8 driver to Liberty's lib directory:
    ```bash
    mkdir -p target/liberty/wlp/usr/servers/springServer/lib/
-   cp ~/.m2/repository/com/oracle/database/jdbc/ojdbc7/12.1.0.2/ojdbc7-12.1.0.2.jar target/liberty/wlp/usr/servers/springServer/lib/ojdbc7.jar
+   cp ~/.m2/repository/com/oracle/database/jdbc/ojdbc8/21.5.0.0/ojdbc8-21.5.0.0.jar target/liberty/wlp/usr/servers/springServer/lib/ojdbc8.jar
    ```
 
 2. Build the application:
@@ -718,7 +718,7 @@ Here are some curl commands to test your API:
 
 1. Replace the database connection details in `server.xml` with your actual Oracle database credentials.
 
-2. The Oracle JDBC driver (ojdbc7.jar) needs to be accessible to your Liberty server. Make sure it's properly located in the server's lib directory.
+2. The Oracle JDBC driver (ojdbc8.jar) needs to be accessible to your Liberty server. Make sure it's properly located in the server's lib directory.
 
 3. If you encounter class loading issues, verify that the `commonLibraryRef` attribute in the application tag in `server.xml` is correctly pointing to your Oracle library.
 

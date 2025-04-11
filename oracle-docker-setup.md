@@ -41,6 +41,18 @@ docker run -d --name oracle \
   container-registry.oracle.com/database/enterprise:latest
 ```
 
+In PowerShell, use backticks (`) for line continuation:
+```powerShell
+docker run -d --name oracle `
+  -p 1521:1521 -p 5500:5500 `
+  -e ORACLE_PWD=tiger `
+  -e ORACLE_SID=ORCLCDB `
+  -e ORACLE_PDB=ORCLPDB1 `
+  -e ORACLE_CHARACTERSET=AL32UTF8 `
+  -v oracle-data:/opt/oracle/oradata `
+  container-registry.oracle.com/database/enterprise:latest
+```
+
 This command:
 - Creates a container named "oracle"
 - Maps ports 1521 (database) and 5500 (Enterprise Manager Express)
