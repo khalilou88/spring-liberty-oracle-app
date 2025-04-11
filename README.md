@@ -634,20 +634,20 @@ log4j.logger.org.springframework=INFO
 
 ## Building and Deployment Steps
 
-1. Copy the ojdbc8 driver to Liberty's lib directory:
-   ```bash
-   mkdir -p target/liberty/wlp/usr/servers/springServer/lib/
-   cp ~/.m2/repository/com/oracle/database/jdbc/ojdbc8/21.5.0.0/ojdbc8-21.5.0.0.jar target/liberty/wlp/usr/servers/springServer/lib/ojdbc8.jar
-   ```
-
-2. Build the application:
+1. Build the application:
    ```bash
    mvn clean package
    ```
 
-3. Create and configure Liberty server:
+2. Create and configure Liberty server:
    ```bash
    mvn liberty:create liberty:install-feature
+   ```
+   
+3. Copy the ojdbc8 driver to Liberty's lib directory:
+   ```bash
+   mkdir -p target/liberty/wlp/usr/servers/springServer/lib/
+   cp ~/.m2/repository/com/oracle/database/jdbc/ojdbc8/21.5.0.0/ojdbc8-21.5.0.0.jar target/liberty/wlp/usr/servers/springServer/lib/ojdbc8.jar
    ```
 
 4. Deploy the application:
