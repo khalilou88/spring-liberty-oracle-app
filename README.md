@@ -643,24 +643,18 @@ log4j.logger.org.springframework=INFO
    ```bash
    mvn liberty:create liberty:install-feature
    ```
-   
-3. Copy the ojdbc8 driver to Liberty's lib directory:
-   ```bash
-   mkdir -p target/liberty/wlp/usr/servers/springServer/lib/
-   cp ~/.m2/repository/com/oracle/database/jdbc/ojdbc8/21.5.0.0/ojdbc8-21.5.0.0.jar target/liberty/wlp/usr/servers/springServer/lib/ojdbc8.jar
-   ```
 
-4. Deploy the application:
+3. Deploy the application:
    ```bash
    mvn liberty:deploy
    ```
 
-5. Start the Liberty server:
+4. Start the Liberty server:
    ```bash
    mvn liberty:start
    ```
 
-6. Your REST API will be accessible at:
+5. Your REST API will be accessible at:
    ```
    http://localhost:9080/api/employees
    ```

@@ -11,6 +11,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <spring.version>5.3.20</spring.version>
+        <ojdbc8.version>21.5.0.0</ojdbc8.version>
         <hibernate.version>5.6.10.Final</hibernate.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -57,7 +58,7 @@
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
-            <version>21.5.0.0</version>
+            <version>${ojdbc8.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -120,6 +121,18 @@
                         <default.https.port>9443</default.https.port>
                         <app.context.root>/api</app.context.root>
                     </bootstrapProperties>
+                    <!-- Copy Oracle JDBC driver to server/lib directory -->
+                    <copyDependencies>
+                        <dependencyGroup>
+                            <location>lib</location>
+                            <stripVersion>true</stripVersion>
+                            <dependency>
+                                <groupId>com.oracle.database.jdbc</groupId>
+                                <artifactId>ojdbc8</artifactId>
+                                <version>${ojdbc8.version}</version>
+                            </dependency>
+                        </dependencyGroup>
+                    </copyDependencies>
                 </configuration>
             </plugin>
         </plugins>
