@@ -1,6 +1,6 @@
 # Spring Application Deployment on WebSphere Liberty with Oracle Database
 
-This guide provides a complete setup for deploying a traditional Spring application on WebSphere Liberty using ojdbc8 driver and Java 8, focusing on the backend components without JSP views.
+This guide provides a complete setup for deploying a traditional Spring application on WebSphere Liberty using ojdbc8 driver and Java 8, focusing on the backend components without views.
 
 ## Project Structure
 
@@ -12,6 +12,10 @@ spring-liberty-app/
 │   │   ├── java/
 │   │   │   └── com/
 │   │   │       └── example/
+│   │   │           ├── config/
+│   │   │           │   └── AppConfig.java
+│   │   │           │   └── WebConfig.java
+│   │   │           │   └── AppInitializer.java
 │   │   │           ├── controller/
 │   │   │           │   └── EmployeeController.java
 │   │   │           ├── dao/
@@ -25,11 +29,6 @@ spring-liberty-app/
 │   │   │       └── server.xml
 │   │   ├── resources/
 │   │   │   └── log4j.properties
-│   │   └── webapp/
-│   │       └── WEB-INF/
-│   │           ├── web.xml
-│   │           ├── applicationContext.xml
-│   │           └── dispatcher-servlet.xml
 │   └── test/
 │       └── java/
 ```
@@ -39,129 +38,143 @@ spring-liberty-app/
 ```xml
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    
-    <groupId>com.example</groupId>
-    <artifactId>spring-liberty-app</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
-    
-    <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <spring.version>5.3.20</spring.version>
-        <hibernate.version>5.6.10.Final</hibernate.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-    
-    <dependencies>
-        <!-- Spring Framework -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        
-        <!-- Servlet API -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        
-        <!-- For RESTful services -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.13.3</version>
-        </dependency>
-        
-        <!-- Oracle JDBC Driver -->
-        <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
-            <version>21.5.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        
-        <!-- Hibernate for JPA -->
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>${hibernate.version}</version>
-        </dependency>
-        
-        <!-- Logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.36</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.36</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-        </dependency>
-    </dependencies>
-    
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.2</version>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                </configuration>
-            </plugin>
-            
-            <plugin>
-                <groupId>io.openliberty.tools</groupId>
-                <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.7.1</version>
-                <configuration>
-                    <serverName>springServer</serverName>
-                    <include>usr</include>
-                    <bootstrapProperties>
-                        <default.http.port>9080</default.http.port>
-                        <default.https.port>9443</default.https.port>
-                        <app.context.root>/api</app.context.root>
-                    </bootstrapProperties>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+   <modelVersion>4.0.0</modelVersion>
+
+   <groupId>com.example</groupId>
+   <artifactId>spring-liberty-app</artifactId>
+   <version>1.0-SNAPSHOT</version>
+   <packaging>war</packaging>
+
+   <properties>
+      <maven.compiler.source>1.8</maven.compiler.source>
+      <maven.compiler.target>1.8</maven.compiler.target>
+      <spring.version>5.3.20</spring.version>
+      <ojdbc8.version>21.5.0.0</ojdbc8.version>
+      <hibernate.version>5.6.10.Final</hibernate.version>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+   </properties>
+
+   <dependencies>
+      <!-- Spring Framework -->
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-context</artifactId>
+         <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-webmvc</artifactId>
+         <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-jdbc</artifactId>
+         <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-orm</artifactId>
+         <version>${spring.version}</version>
+      </dependency>
+
+      <!-- Servlet API -->
+      <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>javax.servlet-api</artifactId>
+         <version>4.0.1</version>
+         <scope>provided</scope>
+      </dependency>
+
+      <!-- For RESTful services -->
+      <dependency>
+         <groupId>com.fasterxml.jackson.core</groupId>
+         <artifactId>jackson-databind</artifactId>
+         <version>2.13.3</version>
+      </dependency>
+
+      <!-- Oracle JDBC Driver -->
+      <dependency>
+         <groupId>com.oracle.database.jdbc</groupId>
+         <artifactId>ojdbc8</artifactId>
+         <version>${ojdbc8.version}</version>
+         <scope>provided</scope>
+      </dependency>
+
+      <!-- Hibernate for JPA -->
+      <dependency>
+         <groupId>org.hibernate</groupId>
+         <artifactId>hibernate-core</artifactId>
+         <version>${hibernate.version}</version>
+      </dependency>
+
+      <!-- Logging -->
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-api</artifactId>
+         <version>1.7.36</version>
+      </dependency>
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-log4j12</artifactId>
+         <version>1.7.36</version>
+      </dependency>
+      <dependency>
+         <groupId>log4j</groupId>
+         <artifactId>log4j</artifactId>
+         <version>1.2.17</version>
+      </dependency>
+   </dependencies>
+
+   <build>
+      <finalName>spring-liberty-app</finalName>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.10.1</version>
+            <configuration>
+               <source>1.8</source>
+               <target>1.8</target>
+            </configuration>
+         </plugin>
+
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <version>3.3.2</version>
+            <configuration>
+               <failOnMissingWebXml>false</failOnMissingWebXml>
+            </configuration>
+         </plugin>
+
+         <plugin>
+            <groupId>io.openliberty.tools</groupId>
+            <artifactId>liberty-maven-plugin</artifactId>
+            <version>3.7.1</version>
+            <configuration>
+               <serverName>springServer</serverName>
+               <include>usr</include>
+               <bootstrapProperties>
+                  <default.http.port>9080</default.http.port>
+                  <default.https.port>9443</default.https.port>
+                  <app.context.root>/api</app.context.root>
+               </bootstrapProperties>
+               <!-- Copy Oracle JDBC driver to server/lib directory -->
+               <copyDependencies>
+                  <dependencyGroup>
+                     <location>lib</location>
+                     <stripVersion>true</stripVersion>
+                     <dependency>
+                        <groupId>com.oracle.database.jdbc</groupId>
+                        <artifactId>ojdbc8</artifactId>
+                        <version>${ojdbc8.version}</version>
+                     </dependency>
+                  </dependencyGroup>
+               </copyDependencies>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
 </project>
 ```
 
@@ -489,124 +502,132 @@ public class EmployeeController {
 }
 ```
 
-## Spring Configuration Files
+## Spring Configuration Classes
 
-### web.xml
+### WebConfig.java
 
-Create a file at `src/main/webapp/WEB-INF/web.xml`:
+Create a file at `src/main/java/com/example/config/WebConfig.java`:
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
-         version="4.0">
+```java
+package com.example.config;
 
-    <display-name>Spring REST API Application</display-name>
+        import org.springframework.context.annotation.ComponentScan;
+        import org.springframework.context.annotation.Configuration;
+        import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>/WEB-INF/applicationContext.xml</param-value>
-    </context-param>
+        @Configuration
+        @EnableWebMvc
+        @ComponentScan(basePackages = "com.example.controller")
+        public class WebConfig {
+        // Additional configuration can go here if needed
+        }
 
-    <listener>
-        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-    </listener>
-
-    <servlet>
-        <servlet-name>dispatcher</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <init-param>
-            <param-name>contextConfigLocation</param-name>
-            <param-value>/WEB-INF/dispatcher-servlet.xml</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>dispatcher</servlet-name>
-        <url-pattern>/</url-pattern>
-    </servlet-mapping>
-</web-app>
 ```
 
-### applicationContext.xml
+### AppConfig.java
 
-Create a file at `src/main/webapp/WEB-INF/applicationContext.xml`:
+Create a file at `src/main/java/com/example/config/AppConfig.java`:
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:tx="http://www.springframework.org/schema/tx"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-                           http://www.springframework.org/schema/beans/spring-beans.xsd
-                           http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context.xsd
-                           http://www.springframework.org/schema/tx
-                           http://www.springframework.org/schema/tx/spring-tx.xsd">
+```java
+package com.example.config;
 
-    <!-- Component scan for service and dao layers -->
-    <context:component-scan base-package="com.example.service,com.example.dao" />
-    
-    <!-- JNDI DataSource -->
-    <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="jdbc/myOracleDS" />
-        <property name="resourceRef" value="true" />
-    </bean>
-    
-    <!-- Entity Manager Factory -->
-    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="dataSource" ref="dataSource" />
-        <property name="packagesToScan" value="com.example.model" />
-        <property name="jpaVendorAdapter">
-            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-                <property name="showSql" value="true" />
-                <property name="databasePlatform" value="org.hibernate.dialect.Oracle12cDialect" />
-            </bean>
-        </property>
-        <property name="jpaProperties">
-            <props>
-                <prop key="hibernate.format_sql">true</prop>
-                <prop key="hibernate.use_sql_comments">true</prop>
-                <prop key="hibernate.hbm2ddl.auto">update</prop>
-            </props>
-        </property>
-    </bean>
-    
-    <!-- Transaction Manager -->
-    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory" />
-    </bean>
-    
-    <tx:annotation-driven transaction-manager="transactionManager" />
-</beans>
+import javax.naming.NamingException;
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jndi.JndiObjectFactoryBean;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import java.util.Properties;
+
+@Configuration
+@ComponentScan(basePackages = {"com.example.service", "com.example.dao"})
+@EnableTransactionManagement
+public class AppConfig {
+
+   @Bean
+   public JndiObjectFactoryBean dataSource() {
+      JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
+      jndiObjectFactoryBean.setJndiName("jdbc/myOracleDS");
+      jndiObjectFactoryBean.setResourceRef(true);
+      return jndiObjectFactoryBean;
+   }
+
+   @Bean
+   public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
+      LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+      em.setDataSource((DataSource) dataSource().getObject());
+      em.setPackagesToScan("com.example.model");
+
+      HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+      vendorAdapter.setShowSql(true);
+      vendorAdapter.setDatabasePlatform("org.hibernate.dialect.Oracle12cDialect");
+      em.setJpaVendorAdapter(vendorAdapter);
+
+      Properties properties = new Properties();
+      properties.setProperty("hibernate.format_sql", "true");
+      properties.setProperty("hibernate.use_sql_comments", "true");
+      properties.setProperty("hibernate.hbm2ddl.auto", "update");
+      em.setJpaProperties(properties);
+
+      return em;
+   }
+
+   @Bean
+   public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+      JpaTransactionManager transactionManager = new JpaTransactionManager();
+      transactionManager.setEntityManagerFactory(emf);
+      return transactionManager;
+   }
+}
 ```
 
-### dispatcher-servlet.xml
+### AppInitializer.java
 
-Create a file at `src/main/webapp/WEB-INF/dispatcher-servlet.xml`:
+Create a file at `src/main/java/com/example/config/AppInitializer.java`:
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:mvc="http://www.springframework.org/schema/mvc"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-                           http://www.springframework.org/schema/beans/spring-beans.xsd
-                           http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context.xsd
-                           http://www.springframework.org/schema/mvc
-                           http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+```java
+package com.example.config;
 
-    <!-- Component scan for controllers -->
-    <context:component-scan base-package="com.example.controller" />
-    
-    <!-- Enable annotation-driven MVC -->
-    <mvc:annotation-driven />
-</beans>
+import org.springframework.web.WebApplicationInitializer;
+import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
+
+public class AppInitializer implements WebApplicationInitializer {
+
+   @Override
+   public void onStartup(ServletContext servletContext) throws ServletException {
+
+      // Root application context (equivalent to applicationContext.xml)
+      AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
+      rootContext.setConfigLocation("com.example.config"); // package with @Configuration classes
+
+      servletContext.addListener(new ContextLoaderListener(rootContext));
+
+      // Dispatcher servlet context (equivalent to dispatcher-servlet.xml)
+      AnnotationConfigWebApplicationContext dispatcherContext = new AnnotationConfigWebApplicationContext();
+      dispatcherContext.register(WebConfig.class); // your WebConfig class
+
+      ServletRegistration.Dynamic dispatcher = servletContext.addServlet("dispatcher",
+              new DispatcherServlet(dispatcherContext));
+
+      dispatcher.setLoadOnStartup(1);
+      dispatcher.addMapping("/");
+   }
+}
+
 ```
 
 ## Logging Configuration
